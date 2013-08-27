@@ -13,6 +13,5 @@ Thought I'd share the following with you:
 <!-- $EndBlock article -->
 
 -- 
-toto
-This message has been sent by E-mail plugin in Tiny Tiny RSS installation at ${TTRSS_HOST}.
+This message has been sent by Tiny Tiny RSS (http://tt-rss.org) installation at ${TTRSS_HOST}.
 <!-- $EndBlock email -->

@@ -165,19 +165,11 @@ class E_Mail extends Plugin {
 	}
 
 	function completeEmails() {
-		$search = db_escape_string($_REQUEST["search"]);
-
 		print "<ul>";
-
-		foreach ($_SESSION['stored_emails'] as $email) {
-			if (strpos($email, $search) !== false) {
-				print "<li>$email</li>";
-			}
-		}
-		$addresses=explode(';', get_email_addresses() );
-		foreach($addresses as $nextaddr)
-			print "<li>$nextaddr</li>";
-
+    
+		$addresses=get_email_addresses();
+		foreach(explode(';', $addresses['content']) as $email)
+			print "<li>$email</li>";
 		print "</ul>";
 	}
 
