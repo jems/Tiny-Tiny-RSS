@@ -48,7 +48,7 @@ function e_mailArticle(id) {
 	   	dojo.disconnect(tmph);
 
 		   new Ajax.Autocompleter('emailArticleDlg_destination', 'emailArticleDlg_dst_choices',
-			   "backend.php?op=pluginhandler&plugin=mail&method=completeEmails",
+			   "backend.php?op=pluginhandler&plugin=e_mail&method=completeEmails",
 			   { tokens: ';', paramName: "search" });
 		});
 
