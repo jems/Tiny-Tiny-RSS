@@ -3662,15 +3662,42 @@
 		return $rv;
 	}
 
-	function save_email_address($email) {
-		// FIXME: implement persistent storage of emails
+        function save_email_address($email) {
+                if (!empty($email)) {
+                        // Insert or update
+                        $query = "SELECT id, content FROM ttrss_plugin_storage
+                                WHERE name='e_mail_addresses' and owner_uid = ".$_SESSION["uid"];
+                        $result = db_query($query);
+                        if (db_num_rows($result) > 0) {
+                                // this user has already stored some adresses - updating
+                                $line = db_fetch_assoc($result);
+                                if (empty($line[content])) {
+                                        $line[content]=$email;
+                                } else {
+                                        if (!preg_match('/'.$email.'/i',$line[content])) {
+                                                $line[content] = $line[content].";$email";
+                                        }
+                                }
+                                db_query("update ttrss_plugin_storage set content='".$line[content]."' where id=".$line[id]);
+                        } else {
+                                // no result, first email to be stored
+                                db_query("insert into ttrss_plugin_storage (name, content, owner_uid) values ('e_mail_addresses','".$email."','".$_SESSION["uid"]."')");
 
-		if (!$_SESSION['stored_emails'])
-			$_SESSION['stored_emails'] = array();
+                        }
+                }
+        }
 
-		if (!in_array($email, $_SESSION['stored_emails']))
-			array_push($_SESSION['stored_emails'], $email);
-	}
+        function get_email_addresses() {
+                $query = "SELECT id, content FROM ttrss_plugin_storage
+                        WHERE name='e_mail_addresses' and owner_uid = ".$_SESSION["uid"];
+                $result = db_query($query);
+                if (db_num_rows($result) > 0) {
+                        return  db_fetch_assoc($result);
+                } else {
+                        return "";
+                }
+        }
+
 
 
 	function get_feed_access_key($feed_id, $is_cat, $owner_uid = false) {
