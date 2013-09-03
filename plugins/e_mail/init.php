@@ -26,6 +26,42 @@ class E_Mail extends Plugin {
 					alt='Zoom' title='".__('Forward by email - enhanced')."'>";
 	}
 
+
+  function save_email_address($email) {
+    if (!empty($email)) {
+      // Insert or update
+      $query = "SELECT id, content FROM ttrss_plugin_storage
+              WHERE name='e_mail_addresses' and owner_uid = ".$_SESSION["uid"];
+      $result = db_query($query);
+      if (db_num_rows($result) > 0) {
+        // this user has already stored some adresses - updating
+        $line = db_fetch_assoc($result);
+        if (empty($line[content])) {
+                $line[content]=$email;
+        } else {
+                if (!preg_match('/'.$email.'/i',$line[content])) {
+                        $line[content] = $line[content].";$email";
+                }
+        }
+        db_query("update ttrss_plugin_storage set content='".$line[content]."' where id=".$line[id]);
+      } else {
+          // no result, first email to be stored
+          db_query("insert into ttrss_plugin_storage (name, content, owner_uid) values ('e_mail_addresses','".$email."','".$_SESSION["uid"]."')");
+      }
+    }
+  }
+
+  function get_email_addresses() {
+    $query = "SELECT id, content FROM ttrss_plugin_storage
+      WHERE name='e_mail_addresses' and owner_uid = ".$_SESSION["uid"];
+    $result = db_query($query);
+    if (db_num_rows($result) > 0) {
+      return  db_fetch_assoc($result);
+    } else {
+      return "";
+    }
+  }
+
 	function emailArticle() {
 
 		$param = db_escape_string($_REQUEST['param']);
@@ -157,7 +193,7 @@ class E_Mail extends Plugin {
 			$reply['error'] =  $mail->ErrorInfo;
 		} else {
 			foreach($addresses as $nextaddr)
-				save_email_address(db_escape_string($nextaddr));
+				$this->save_email_address(db_escape_string($nextaddr));
 			$reply['message'] = "UPDATE_COUNTERS";
 		}
 
@@ -166,10 +202,15 @@ class E_Mail extends Plugin {
 
 	function completeEmails() {
 		print "<ul>";
-    
-		$addresses=get_email_addresses();
-		foreach(explode(';', $addresses['content']) as $email)
-			print "<li>$email</li>";
+   		$search=$_POST['search']; 
+		$addresses=$this->get_email_addresses();
+		foreach(explode(';', $addresses['content']) as $email) {
+			error_log("search : '".$_POST['search']."', email : '".$email."'");
+			if (preg_match('/'.$search.'/', $email)) {
+				error_log("matched search : '".$_POST['search']."', email : '".$email."'");
+				print "<li>$email</li>";
+			}
+		}
 		print "</ul>";
 	}
 
