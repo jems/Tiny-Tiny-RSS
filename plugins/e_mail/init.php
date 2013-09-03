@@ -205,9 +205,7 @@ class E_Mail extends Plugin {
    		$search=$_POST['search']; 
 		$addresses=$this->get_email_addresses();
 		foreach(explode(';', $addresses['content']) as $email) {
-			error_log("search : '".$_POST['search']."', email : '".$email."'");
 			if (preg_match('/'.$search.'/', $email)) {
-				error_log("matched search : '".$_POST['search']."', email : '".$email."'");
 				print "<li>$email</li>";
 			}
 		}
